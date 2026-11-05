@@ -1,0 +1,41 @@
+---
+- name: Preparar ambiente do DevOps Lab
+  hosts: app_servers
+  become: true
+
+  vars_files:
+    - variables.yml
+    
+  tasks:
+    - name: Instala os pacotes picas
+      ansible.builtin.apt:
+        name: "{{ lab_packages }}"
+        state: present
+
+    - name: Criar diretorio dos Apps
+      ansible.builtin.file:
+        path: "{{ directoryApps }}"
+        state: directory
+        mode: '0755'
+
+    - name: Criar diretorio das configuracoes
+      ansible.builtin.file:
+        path: "{{ directoryConfigs }}"
+        state: directory
+        mode: '0755'
+
+    - name: Gerar arquivos de configuracao
+      ansible.builtin.template:
+        src: jinja.j2
+        dest: "{{ directoryConfigs }}/{{ item.name }}.conf"
+        owner: root
+        group: root
+        mode: '0644'
+      loop: "{{ applications }}"
+      when: item.enabled | bool
+      notify: Configuracoes geradas
+
+  handlers:
+    - name: Configuracoes geradas
+      ansible.builtin.debug:
+        msg: "Os arquivos de configuracao foram atualizados!"

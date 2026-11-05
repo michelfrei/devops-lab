@@ -1,0 +1,27 @@
+---
+applications:
+  - name: intranet
+    port: 8080
+    enabled: true
+
+  - name: api
+    port: 5000
+    enabled: true
+
+  - name: legacy
+    port: 9090
+    enabled: false
+
+  - name: reports
+    port: 3000
+    enabled: true
+
+lab_packages:
+  - git
+  - curl
+  - htop
+  - unzip
+
+ambiente: homologation
+directoryApps: /opt/empresa/apps
+directoryConfigs: /opt/empresa/config
