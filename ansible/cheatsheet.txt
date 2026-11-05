@@ -1,0 +1,59 @@
+inventorio em yaml
+
+all:
+  children:
+    servers:
+      hosts:
+        10.250.200.10:
+        10.250.200.11:
+    db:
+      hosts:
+        10.250.200.12:
+
+
+exemplo de inventorio em INI
+#servidores
+[servers]
+10.250.200.10
+10.250.200.11
+#banco de dados
+[db]
+10.250.200.12
+
+[multi:children]
+servers
+db
+
+[multi:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_private_key_file=~/path/to/key/private_key
+
+
+enviando comando para multiplos servidores
+ansible all -i inventory  -m ansible.builtin.command -a "hostname"
+all                         -> grupo que estamos invocando
+-i inventory                -> especificando qual o arquivo de inventorio
+-m ansible.builtin.command  -> modulo do ansible que vai ser utilizado
+-a "hostname"               -> args - é o comando que será executado nas máquinas
+
+
+ansible db -i inventory -m ansible.builtin.setup
+O modulo setup coleta facts, que contêm informações de um servidor, pegando hardware, rede, etc.
+
+
+ansible all -i inventory -b -m apt -a "name=net-tools state=present" 
+ou
+ansible all -i inventory -b -K -m apt -a "name=net-tools state=present"
+-b  -> become super user, eleva seu privilegio para fazer a operação
+-K  -> esse argumento serve para ser capaz de coloca a senha do usuário caso precise (-K = --ask-become-pass)
+-m apt -> chama o pacote apt
+-a "name=net-tools state=present" -> garante que o pacote vai existir nesse servidor (se não tiver instala, se tiver retorna uma mensagem)
+
+ansible db -i inventory -b -m service -a "name=ntp state=started enabled=yes"
+-m service
+chama o modulo de serviço para conferir se o serviço ntp está ativo e como enable(iniciar junto com o SO)
+
+na chamada de um grupo de um inventorio, é possivel no final do comando colocar o parametro --limit para limitar dentro do escopo alguns hosts
+esse comando aceita inclusive regex, segue exemplo:
+ansible all -i inventory -a "free -m" --limit "10.250.200.4" -> pega apenas o host com esse IP
+ansible all -i inventory -a "hostname" --limit '~^10\.250\.200\.(10|11)$' -> pega com ip final 10 ou 11
