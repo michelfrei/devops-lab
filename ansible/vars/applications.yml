@@ -1,0 +1,17 @@
+
+---
+applications:
+  - name: api
+    port: 8001
+    enabled: true
+
+  - name: worker
+    port: 9000
+    enabled: true
+
+  - name: legacy
+    port: 8080
+    enabled: false
+
+ambiente: production
+managed_by: ansible

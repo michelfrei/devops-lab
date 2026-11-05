@@ -1,0 +1,38 @@
+
+---
+- name: Gerenciar configuracoes do laboratorio
+  hosts: controllers
+  become: true
+
+  vars:
+    applications:
+      - name: api
+        port: 8001
+        enabled: true
+
+      - name: worker
+        port: 9000
+        enabled: true
+
+      - name: legacy
+        port: 8080
+        enabled: false
+
+  tasks:
+    - name: Criar configuracoes das aplicacoes
+      ansible.builtin.copy:
+        dest: "/opt/devops-lab/{{ item.name }}.conf"
+        content: |
+          APP_NAME={{ item.name }}
+          APP_PORT={{ item.port }}
+        owner: root
+        group: root
+        mode: '0644'
+      loop: "{{ applications }}"
+      when: item.enabled | bool
+      notify: Configuracao atualizada
+
+  handlers:
+    - name: Configuracao atualizada
+      ansible.builtin.debug:
+        msg: "Uma ou mais configuracoes foram alteradas!"

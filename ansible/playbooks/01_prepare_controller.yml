@@ -1,0 +1,36 @@
+---
+- name: Preparar ambiente do DevOps Lab
+  hosts: controllers
+  become: true
+
+  vars:
+    lab_directory: /opt/devops-lab
+    lab_packages:
+      - net-tools
+      - curl
+
+  tasks:
+    - name: Garantir pacotes instalados
+      ansible.builtin.apt:
+        name: "{{ lab_packages }}"
+        state: present
+
+    - name: Criar diretorio do laboratorio
+      ansible.builtin.file:
+        path: "{{ lab_directory }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Criar arquivo de identificacao
+      ansible.builtin.copy:
+        dest: "{{ lab_directory }}/info.txt"
+        content: |
+          Projeto: DevOps Lab
+          Sistema: {{ ansible_facts['distribution'] }}
+          Host: {{ inventory_hostname }}
+          Gerenciado pelo Ansible
+        owner: root
+        group: root
+        mode: '0644'

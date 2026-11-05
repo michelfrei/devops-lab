@@ -1,0 +1,31 @@
+
+---
+- name: Gerenciar aplicacoes com templates Jinja2
+  hosts: controllers
+  become: true
+
+  vars_files:
+    - ../vars/applications.yml
+
+  tasks:
+    - name: Criar diretorio para as configuracoes
+      ansible.builtin.file:
+        path: /opt/devops-lab/templates
+        state: directory
+        mode: '0755'
+
+    - name: Gerar arquivos de configuracao
+      ansible.builtin.template:
+        src: ../templates/application.conf.j2
+        dest: "/opt/devops-lab/templates/{{ item.name }}.conf"
+        owner: root
+        group: root
+        mode: '0644'
+      loop: "{{ applications }}"
+      when: item.enabled | bool
+      notify: Configuracoes geradas
+
+  handlers:
+    - name: Configuracoes geradas
+      ansible.builtin.debug:
+        msg: "Os arquivos de configuracao foram atualizados!"
