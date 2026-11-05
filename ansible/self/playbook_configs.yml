@@ -5,7 +5,7 @@
 
   vars_files:
     - variables.yml
-    
+
   tasks:
     - name: Instala os pacotes picas
       ansible.builtin.apt:
@@ -28,6 +28,19 @@
       ansible.builtin.template:
         src: jinja.j2
         dest: "{{ directoryConfigs }}/{{ item.name }}.conf"
+        owner: root
+        group: root
+        mode: '0644'
+      loop: "{{ applications }}"
+      when: item.enabled | bool
+      notify: Configuracoes geradas
+
+    - name: Gerar arquivos de Apps
+      ansible.builtin.copy:
+        dest: "{{ directoryApps }}/{{ item.name }}.conf"
+        content: |
+          "Esse é o melhor app do mundo"
+          APP_NAME={{ item.name }}
         owner: root
         group: root
         mode: '0644'
